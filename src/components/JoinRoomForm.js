@@ -1,19 +1,24 @@
 import io from 'socket.io-client';
 import * as SocketEvent from '../socket/SocketEvents';
 import React from 'react';
+import { browserHistory } from 'react-router';
 
 class JoinRoomForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: 'test',
-      pin: 'ice',
-      roomNumber: 'les',
+      name: '',
+      pin: '',
+      roomNumber: '',
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   };
+
+  componentWillMount(props) {
+
+  }
 
   handleInputChange(event) {
     const value = event.target.value;
@@ -26,9 +31,12 @@ class JoinRoomForm extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    var socket = io.connect('http://localhost:3000');
     var { name, pin, roomNumber } = this.state;
-    socket.emit(SocketEvent.ROOMJOIN, { name, pin, roomNumber });
+    var socket = io.connect('http://localhost:3000');
+    socket.emit(SocketEvent.USER_JOINREQUEST, {name, pin, roomNumber});
+    socket.on(SocketEvent.SERVER_JOINSUCCESS, (res) => {
+      browserHistory.push('/room/' + res.roomNumber);
+    });
   };
 
   render() {

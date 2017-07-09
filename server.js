@@ -6,10 +6,6 @@ const http = require('http');
 const socketServer = require('socket.io');
 const app = express();
 
-import React from 'react';
-import { renderToString } from 'react-dom/server';
-import { match, RouterContext } from 'react-router';
-import routes from './routes';
 import * as SocketEvent from './src/socket/socketEvents';
 
 //const todoModel = require('./models/todoModel')  //todo model
@@ -18,7 +14,6 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 app.get('*', (req, res) => {
-	console.log('Express GET: ' + req.url);
 	res.sendFile(path.join( __dirname, 'index.html'));
 });
 // MONGOOSE CONNECT
@@ -45,12 +40,26 @@ const PORT = 3000;
 serve.listen(PORT,()=> {console.log("Server running, listening on port " + PORT)});
 
 io.on('connection', (socket) => {
-		let clientId = socket.id;
-		let roomNumber = Math.floor(Math.random() * 1000000);
-		console.log('Someone has connected');
-		// /socket.emit(SocketEvent.ROOMJOIN_SUCCESS, { message: clientId + '\nConnected to room:\n' + roomNumber });
 
-		socket.on(SocketEvent.ROOMJOIN, (data) => {
-			socket.join('/' + data.roomNumber);
-		});
+  socket.on(SocketEvent.USER_JOINREQUEST, (data) => {
+    console.log('Client(' + data.name + ') is trying to join room ' + data.roomNumber);
+    
+    // Verify the user can join given room
+    if (true)
+    {
+      socket.emit(SocketEvent.SERVER_JOINSUCCESS, {...data});
+    }
+  });
+
+  socket.on(SocketEvent.USER_JOINROOM, (data) => {
+    console.log('\tJoined Room ' + data.roomNumber);
+    socket.join(data.roomNumber);
+  });
+
+  socket.on(SocketEvent.USER_SENDCHAT, (data) => {
+    var { clientId, roomNumber, message } = data;
+    var test = "testing";
+    console.log('User sent a chat to room ' + roomNumber + ' saying:\n' + data.message);
+    socket.broadcast.to(roomNumber).emit(SocketEvent.SERVER_BROADCASTCHAT, { clientId, roomNumber, message, test });
+  });
 });

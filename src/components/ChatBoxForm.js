@@ -7,15 +7,25 @@ class ChatBoxForm extends React.Component {
     super(props);
     this.state = {
       name: '',
-      pin: '',
-      roomNumber: '',
+      textValue: '',
+      roomNumber: 123,
     };
 
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleTextInputChange = this.handleTextInputChange.bind(this);
+
+    this.placeholder = 'Type here to chat with other BeeGee-ers in the room';
+
+    this.socket = io.connect('http://localhost:3000');
+    var { name, pin, roomNumber } = this.state;
+    this.socket.emit(SocketEvent.USER_JOINROOM, { name, pin, roomNumber });
+
+    this.socket.on(SocketEvent.SERVER_BROADCASTCHAT, (data) => {
+      console.log('Receieved chat: ' + data.message);
+      alert(data.message);
+    });
   };
 
-  handleInputChange(event) {
+  handleTextInputChange(event) {
     const value = event.target.value;
     const name = event.target.name;
 
@@ -24,30 +34,14 @@ class ChatBoxForm extends React.Component {
     });
   };
 
-  handleSubmit(event) {
-    event.preventDefault();
-    var socket = io.connect('http://localhost:3000');
-    var { name, pin, roomNumber } = this.state;
-    socket.emit(SocketEvent.ROOMJOIN, { name, pin, roomNumber });
-  };
-
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Name:
-          <input name="name" type="text" value={this.state.name} onChange={this.handleInputChange} />
-        </label><br />
-        <label>
-          PIN:
-          <input name="pin" type="text" value={this.state.pin} onChange={this.handleInputChange} />
-        </label><br />
-        <label>
-          Room Number:
-          <input name="roomNumber" type="text" value={this.state.roomNumber} onChange={this.handleInputChange} />
-        </label><br />
-        <input type="submit" value="Join Room" />
-      </form>
+      <div>
+        <textarea cols='100' rows='4' placeholder={this.placeholder}
+          name='textValue' value={this.state.textValue} onChange={this.handleTextInputChange}>
+        </textarea> <br />
+        <button onClick={this.props.handleChatSend}>Send</button>
+      </div>
     );
   };
 }
