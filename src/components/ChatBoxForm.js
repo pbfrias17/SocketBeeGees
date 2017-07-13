@@ -6,23 +6,12 @@ class ChatBoxForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
-      textValue: '',
-      roomNumber: 123,
+      chatText: '',
     };
 
     this.handleTextInputChange = this.handleTextInputChange.bind(this);
-
+    this.handleSend = this.handleSend.bind(this);
     this.placeholder = 'Type here to chat with other BeeGee-ers in the room';
-
-    this.socket = io.connect('http://localhost:3000');
-    var { name, pin, roomNumber } = this.state;
-    this.socket.emit(SocketEvent.USER_JOINROOM, { name, pin, roomNumber });
-
-    this.socket.on(SocketEvent.SERVER_BROADCASTCHAT, (data) => {
-      console.log('Receieved chat: ' + data.message);
-      alert(data.message);
-    });
   };
 
   handleTextInputChange(event) {
@@ -34,13 +23,19 @@ class ChatBoxForm extends React.Component {
     });
   };
 
+  handleSend() {
+    console.log('hit send');
+    console.log(this.props.onSend(this.state.chatText));
+    this.setState({ chatText: '' });
+  }
+
   render() {
     return (
       <div>
         <textarea cols='100' rows='4' placeholder={this.placeholder}
-          name='textValue' value={this.state.textValue} onChange={this.handleTextInputChange}>
+          name='chatText' value={this.state.chatText} onChange={this.handleTextInputChange}>
         </textarea> <br />
-        <button onClick={this.props.handleChatSend}>Send</button>
+        <button onClick={this.handleSend}>Send</button>
       </div>
     );
   };
