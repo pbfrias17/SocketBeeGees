@@ -10,7 +10,7 @@ class HomePage extends React.Component {
   render() {
     return (
       <div>
-        <h1>Be Legendary!</h1>
+        <h1>BE LEGENDARY!</h1>
         <img src="http://ecx.images-amazon.com/images/I/81n8CQrtjfL._SL1500_.jpg" height="500" width="750" />
         <br />
         {this.props.children}

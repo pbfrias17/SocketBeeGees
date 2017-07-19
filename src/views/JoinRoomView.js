@@ -3,7 +3,7 @@ import React from 'react';
 import { browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 import * as SocketEvent from '../socket/SocketEvents';
-import { AddUser } from '../actions';
+import { UpdateUser } from '../actions';
 import JoinRoomForm from '../components/JoinRoomForm';
 
 
@@ -17,6 +17,7 @@ class JoinRoomView extends React.Component {
     var socket = io.connect('http://localhost:3000');
     socket.emit(SocketEvent.USER_JOINREQUEST, { username, pin, roomNumber }, (res) => {
       if (res.success) {
+        socket.emit(SocketEvent.USER_JOINROOM, { user: formData });
         browserHistory.push('/room?id=' + res.roomNumber);
       }
     });
@@ -34,8 +35,8 @@ class JoinRoomView extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    AddUser: (userData) => dispatch(AddUser(userData)),
+    UpdateUser: (userData) => dispatch(UpdateUser(userData)),
   };
 };
 
-export default connect(null, { AddUser })(JoinRoomView);
+export default connect(null, mapDispatchToProps)(JoinRoomView);

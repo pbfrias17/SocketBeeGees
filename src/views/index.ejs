@@ -1,0 +1,42 @@
+<% include partials/header %>
+
+<body>
+  <nav class='navbar navbar-default'>
+    <div class='container-fluid'>
+      <div class='collapse navbar-collapse'>
+        <ul class='nav navbar-nav'>
+          <li><a href='/'><span class='glyphicon glyphicon-home'></span></a></li>
+          <li><p class='navbar-brand'>SocketBeeGees</p></li>
+          <li><p class='navbar-text'> | </p></li>
+          <li><p class='navbar-text'>Board Games with Socket.io</p></li>
+        </ul>
+        <ul class='nav navbar-nav navbar-right'>
+          <% if (user) { /* user signed in? */ %>
+            <li><p class='navbar-text'><%= 'Hello, ' + user.username + '!' %></p></li>
+            <li><p class='navbar-text'> | </p></li>
+            <li><a href='/logout'>Logout</a></li>
+          <% } else { %>
+            <li><a href='/register'>Create Account</a></li>
+            <li><p class='navbar-text'> | </p></li>
+            <li>      
+              <form class="navbar-form" action='/login' method='POST'>
+                <div class="form-group">
+                  <input type="text" class="form-control" name='username' placeholder="username">
+                  <input type='password' class='form-control' name='password' placeholder='password'>
+                </div>
+                <button type="submit" class="btn btn-default">Login</button>
+              </form>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div id="app"></div>
+  <h3>Welcome to SOCKET BEEGEES!</h3>
+  <div id="abar">
+    <a href="https://github.com/pbfrias17/SocketBeeGees" target="_blank">Check out the code for this app</a>
+  </div>
+</body>
+
+<% include partials/footer %>

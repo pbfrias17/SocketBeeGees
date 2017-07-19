@@ -1,6 +1,7 @@
 export const ROOM_ADDUSER = "ROOM_ADDUSER";
 
-export const USER_JOINROOM = "USER_JOINROOM";
+export const USER_UPDATE = "USER_UPDATE";
+export const USER_SETUSERINFO = "USER_SETUSERINFO";
 export const USER_SETROOMINFO = "USER_SETROOMINFO";
 export const USER_PLAY = "USER_PLAY";
 export const USER_SENDCHAT = "USER_SENDCHAT";

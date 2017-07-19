@@ -1,0 +1,8 @@
+<% include partials/header %>
+<body>
+  <% if (room) { %>
+    <h4>Welcome to Room <%= room.roomNumber %> </h4>
+  <% } else { %>
+    <h5>Fatal Room Error</h5>
+  <% } %>
+</body>

@@ -1,10 +1,17 @@
 import * as ActionType from './types';
 
-const AddUser = (user) => {
+const UpdateUser = (user) => {
   return {
-    type: ActionType.USER_JOINROOM,
+    type: ActionType.USER_UPDATE,
     payload: user
   };
+};
+
+const SetUserInfo = (user) => {
+  return {
+    type: ActionType.USER_SETUSERINFO,
+    payload: user
+  }
 };
 
 const SetRoomInfo = (room) => {
@@ -14,4 +21,4 @@ const SetRoomInfo = (room) => {
   };
 };
 
-export { AddUser, SetRoomInfo };
+export { UpdateUser, SetRoomInfo };
