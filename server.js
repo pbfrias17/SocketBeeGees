@@ -1,23 +1,21 @@
-const path = require('path');
-const express = require('express');
+import path from 'path';
+import express from 'express';
 import mongoose from 'mongoose';
-const bodyParser = require('body-parser');
-const Enumerable = require('linq');
-import { FindRoom } from './helpers/serverHelpers';
+import bodyParser from 'body-parser';
+import Enumerable from 'linq';
 import passport from 'passport';
-const http = require('http');
-const socketServer = require('socket.io');
-const app = express();
+import http from 'http';
+import socketServer from 'socket.io';
 
-import { importUser, importRoom } from './tools/middlewares/locals';
+import User from './models/user';
+import { importUser, verifyRoomAccessForUser } from './tools/middlewares/locals';
 import * as SocketEvent from './src/socket/socketEvents';
 
-//const todoModel = require('./models/todoModel')  //todo model
-
+const app = express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
-//passport config
+// Configure Authentication
 app.use(require('express-session')({
   secret: 'just wtf is this for',
   resave: false,
@@ -25,42 +23,44 @@ app.use(require('express-session')({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-// passport.use(new LocalStrategy(
-//   function(username, password, done) {
-//     User.findOne({ username: username }, function(err, user) {
-//       if (err) { return done(err); }
-//       if (!user) {
-//         return done(null, false, { message: 'Incorrect username.' });
-//       }
-//       if (!user.validPassword(password)) {
-//         return done(null, false, { message: 'Incorrect password.' });
-//       }
-//       return done(null, user);
-//     });
-//   }
-// ));
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
-//passport config
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
+// Remaining App Configuration
 app.use(importUser);
-app.use('/room/:roomNumber/', importRoom);
+app.use('/room', verifyRoomAccessForUser);
 
 app.set('views', path.join(__dirname, 'src/views'));
 app.set('view engine', 'ejs');
 
-app.get('/room/:roomNumber', (req, res) => {
-  res.render('room');
-});
-
+// Route Management
 app.get('/', (req, res) => {
   res.render('index');
 });
 
+app.get('/room', (req, res) => {
+  if (res.locals.room === null) {
+    res.render('roomNotFound');
+  } else if (!res.locals.userVerifiedForRoomAccess) {
+    res.render('roomNotAccessible');
+  } else {
+    res.render('room');
+  }
+});
+
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/',
+}));
+
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
+
 // MONGOOSE CONNECT
 // ===========================================================================
-
-// Connection URL
 var MongoClient = require('mongodb').MongoClient;
 var url = 'mongodb://localhost:27017';
 
@@ -73,11 +73,11 @@ db.on('error', ()=> {console.log( 'FAILED to connect to mongoose')});
 db.once('open', () => {
  	console.log( 'SUCCESSFULLY connected to mongoose')
 });
+
+// Seed Database
 import seedDB from './tools/mongoDB_seed';
 seedDB();
 
-var rooms = [{ roomNumber: 123, users: [{ username: 'poop', pin: '23424', roomNumber: 123 }] }];
-var users = [];
 /***************************************************************************************** */
 /* Socket logic starts here																   */
 /***************************************************************************************** */

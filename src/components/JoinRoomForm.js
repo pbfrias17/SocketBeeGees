@@ -5,8 +5,6 @@ class JoinRoomForm extends React.Component {
     super(props);
 
     this.state = {
-      username: '',
-      pin: '',
       roomNumber: '',
     };
 
@@ -25,14 +23,6 @@ class JoinRoomForm extends React.Component {
   render() {
     return (
       <div>
-        <label>
-          Name:
-          <input name="username" type="text" value={this.state.name} onChange={this.handleInputChange} />
-        </label><br />
-        <label>
-          PIN:
-          <input name="pin" type="number" value={this.state.pin} onChange={this.handleInputChange} />
-        </label><br />
         <label>
           Room Number:
           <input name="roomNumber" type="number" value={this.state.roomNumber} onChange={this.handleInputChange} />

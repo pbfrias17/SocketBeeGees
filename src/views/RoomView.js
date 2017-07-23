@@ -8,15 +8,16 @@ import { SetUserInfo, SetRoomInfo } from '../actions';
 class RoomView extends React.Component {
   constructor(props) {
     super(props);
-
+    this.roomNumber = window.roomNumber;
+    this.userId = window.userId;
     this.handleChatSend = this.handleChatSend.bind(this);
   };
 
   componentWillMount(props) {
     this.socket = io.connect('http://localhost:3000');
-    this.socket.emit(SocketEvent.USER_GETROOM, { roomNumber: this.props.location.query.id }, (room) => {
-      this.props.SetRoomInfo(room); 
-    });
+    // this.socket.emit(SocketEvent.USER_GETROOM, { roomNumber: this.roomNumber }, (room) => {
+    //   this.props.SetRoomInfo(room); 
+    // });
     this.socket.on(SocketEvent.SERVER_BROADCASTROOMUPDATE, (room) => {
       console.log('another user joined');
       this.props.SetRoomInfo(room);
@@ -39,11 +40,11 @@ class RoomView extends React.Component {
   render() {
     return (
       <div>
-        YOU ARE: {this.props.user.username} <br/>
-        Users:<br/>
+        {/*YOU ARE: {this.props.user.username} <br/>*/}
+        {/*Users:<br/>
         <ul>
           {this.displayUsers()}
-        </ul>
+        </ul>*/}
         <ChatBoxForm onSend={(message) => this.handleChatSend(message)} />
       </div>
     );

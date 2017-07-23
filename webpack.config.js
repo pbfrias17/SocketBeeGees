@@ -8,7 +8,10 @@ module.exports = {
   devServer: {
     contentBase: debug ? './dist' : './build'
   },
-  entry: "./src/client",
+  entry: {
+    gameRoom: "./src/gameRoom",
+    join: "./src/join",  
+  },
   module: {
     loaders: [
       { test: /\.js$/, 
@@ -20,7 +23,7 @@ module.exports = {
   output: {
     path: __dirname + '/dist',
     publicPath: '/',
-    filename: "client.min.js"
+    filename: "[name].min.js"
   },
   plugins: debug ? [] : [
     new webpack.optimize.DedupePlugin(),

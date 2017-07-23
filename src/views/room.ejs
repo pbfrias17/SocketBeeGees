@@ -2,6 +2,13 @@
 <body>
   <% if (room) { %>
     <h4>Welcome to Room <%= room.roomNumber %> </h4>
+    <div id="app">
+    </div>
+    <script>
+      window.roomNumber = <%= Number.parseInt(room.roomNumber) %>;
+      window.userId = '<%- user._id %>';
+    </script>
+    <% include partials/gameImporter %>
   <% } else { %>
     <h5>Fatal Room Error</h5>
   <% } %>
