@@ -26,11 +26,11 @@ class FormGroup extends React.Component {
   handleSubmit(event) {
     var errorCaught = false;
     this.props.forms.forEach(form => {
-      console.log(form);
       if (form.required && !errorCaught) {
-        let unacceptableValue = form.type === 'number' ? NaN : ''; 
-        if (this.state[form.name] === unacceptableValue) {
+        if ((form.type === 'number' && Number.isNaN(this.state[form.name])) 
+            || (form.type !== 'number' && this.state[form.name] === '')) {
           this.setState({ formError: 'Missing required information.' })
+          errorCaught = true;
           event.preventDefault();
         }
       }

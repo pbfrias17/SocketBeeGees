@@ -10,6 +10,7 @@ class SearchRoomForm extends React.Component {
         name: 'roomNumber',
         placeholder: 'Room Number',
         type: 'number',
+        required: true,
       },
       { 
         name: 'pin',
