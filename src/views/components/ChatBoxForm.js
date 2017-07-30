@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import * as SocketEvent from '../socket/SocketEvents';
+import * as SocketEvent from '../../socket/SocketEvents';
 import React from 'react';
 
 class ChatBoxForm extends React.Component {

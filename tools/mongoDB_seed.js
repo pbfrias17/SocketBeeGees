@@ -21,50 +21,53 @@ export default function seedDB() {
   Room.remove({}, function(err) {
     if(err) {
       console.log(err);
-    }
+    } else {
       console.log('wiped db.Room');
       
       // Initialize new rooms
       roomData.forEach(function(room) {
-      Room.create(room, function(err, roomCreated) {
-        if(err) {
-          console.log('ERR on room.create()');
-        } else {
-          console.log('added room #' + room.roomNumber);
-          User.remove({}, (err) => {
-            if(err) {
-              console.log(err);
-            }
-              console.log('wiped db.User');
-              
-              // Register/create users after rooms
-              User.register(testUser, testUser.password, (err, newUser) => {
-                if (err) {
-                  console.log('ERR on user.create()');
-                } else {
-                  console.log('added user ' + newUser.username);
-                  Room.findOne({ roomNumber: newUser.roomNumber }, (err, foundRoom) => {
-                    if (err) {
-                      console.log('ERR on room.findOne()');
-                    } else {
-                      if (foundRoom !== null) {
-                        foundRoom.users.push(newUser);
-                        foundRoom.save((err, data) => {
-                          if (err)
-                            console.log('ERR on foundRoom.save()');
-                          else
-                            console.log('added user ' + newUser.username + ' to room ' + foundRoom.roomNumber);
-                        });
+        Room.create(room, function(err, roomCreated) {
+          if(err) {
+            console.log('ERR on room.create()');
+          } else {
+            console.log('added room #' + room.roomNumber);
+            User.remove({}, (err) => {
+              if(err) {
+                console.log(err);
+              }
+                console.log('wiped db.User');
+                
+                // Register/create users after rooms
+                User.register(testUser, testUser.password, (err, newUser) => {
+                  if (err) {
+                    console.log('ERR on user.create()');
+                  } else {
+                    console.log('added user ' + newUser.username);
+                    Room.findOne({ roomNumber: newUser.roomNumber }, (err, foundRoom) => {
+                      if (err) {
+                        console.log('ERR on room.findOne()');
                       } else {
-                        console.log('could not find room ' + newUser.roomNumber);
+                        if (foundRoom !== null) {
+                          foundRoom.users.push(newUser);
+                          foundRoom.save((err, data) => {
+                            if (err)
+                              console.log('ERR on foundRoom.save()');
+                            else
+                              console.log('added user ' + newUser.username + ' to room ' + foundRoom.roomNumber);
+                          });
+                        } else {
+                          console.log('could not find room ' + newUser.roomNumber);
+                        }
                       }
-                    }
-                  });
-                }
-              });
-          });
+                    });
+                  }
+                });
+            });
+          }
         }
-      });
-    });
+      );
+    }
+    );
+    }
   });
 };

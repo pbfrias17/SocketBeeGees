@@ -1,13 +1,16 @@
 import path from 'path';
 import express from 'express';
+import ReactEngine from 'express-react-engine';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import Enumerable from 'linq';
 import passport from 'passport';
 import http from 'http';
 import socketServer from 'socket.io';
+import { AddUserToRoom } from './tools/serverHelper';
 
 import User from './models/user';
+import Room from './models/room';
 import { importUser, verifyRoomAccessForUser } from './tools/middlewares/locals';
 import * as SocketEvent from './src/socket/socketEvents';
 
@@ -31,12 +34,14 @@ passport.deserializeUser(User.deserializeUser());
 app.use(importUser);
 app.use('/room', verifyRoomAccessForUser);
 
-app.set('views', path.join(__dirname, 'src/views'));
+app.set('views', path.join(__dirname, 'src/views/routes'));
 app.set('view engine', 'ejs');
 
-// Route Management
+
+// ROUTES/API MANAGEMENT
+// ===========================================================================
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('home');
 });
 
 app.get('/room', (req, res) => {
@@ -59,6 +64,90 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
+app.post('/register', (req, res) => {
+  const newUser = new User({ username: req.body.username });
+  User.register(newUser, req.body.password, (err, user) => {
+    if(err) {
+      console.log(err);
+      req.flash('reg_error', err.message);
+      res.redirect('/register');
+    } else {
+      // if registration successful, login user
+      passport.authenticate('local')(req, res, () => {
+        res.redirect('/');
+      });
+    }
+  });
+});
+
+app.post('/create', (req, res) => {
+  var { roomNumber } = req.body;
+  Room.findOne({ roomNumber }, (err, room) => {
+    if (err) {
+      console.log('ERR on POST /create');
+      res.redirect('/');      
+    } else {
+      if (room) {
+        console.log('Unable to create room ' + roomNumber + ' since it already exists');
+        res.redirect('/');
+      } else {
+        console.log('Creating room ' + roomNumber);
+        var newRoom = new Room({ roomNumber });
+        AddUserToRoom(req.user, newRoom, res);
+      }
+    }
+  });
+});
+
+app.post('/join', (req, res) => {
+  var { roomNumber } = req.body;
+  Room.findOne({ roomNumber }).
+    populate('users').
+    exec((err, room) => {
+      if (err) {
+        console.log('ERR on POST /join find room');
+        res.redirect('/');    
+      } else {
+        if (room) {
+          AddUserToRoom(req.user, room, res, function(updatedRoom) {
+            if (updatedRoom) {
+              console.log(updatedRoom);           
+              io.to(updatedRoom.roomNumber).emit(SocketEvent.SERVER_BROADCASTROOMUPDATE, updatedRoom);
+            }
+          });
+        } else {
+          console.log('could not join room ' + roomNumber + ' since it could not be found');
+          res.redirect('/');      
+        }
+      }
+    });
+});
+
+app.get('/api/room', (req, res) => {
+  Room.findOne({ roomNumber: req.query.id }, (err, room) => {
+    var jsonRes = {
+      success: false,
+    };
+    if (err) {
+      console.log('error processing GET /api/room/' + req.query);
+    } else {
+      if (room) {
+        jsonRes = {
+          success: true,
+          roomNumber: room.roomNumber,
+          userCount: room.users.length,
+        };
+      } else {
+        console.log('could not find room ' + req.query.id);
+      }
+    }
+
+    console.log(jsonRes);
+    res.json(jsonRes);
+  });
+});
+
+
 // MONGOOSE CONNECT
 // ===========================================================================
 var MongoClient = require('mongodb').MongoClient;
@@ -78,14 +167,14 @@ db.once('open', () => {
 import seedDB from './tools/mongoDB_seed';
 seedDB();
 
-/***************************************************************************************** */
-/* Socket logic starts here																   */
-/***************************************************************************************** */
+
+// SOCKETS
+// ===========================================================================
 var serve = http.createServer(app);
 var io = socketServer(serve);
 const PORT = 3000;
 
-serve.listen(PORT,()=> {console.log("Server running, listening on port " + PORT)});
+serve.listen(PORT, ()=> {console.log("Server running, listening on port " + PORT)});
 
 io.on('connection', (socket) => {
 
@@ -113,8 +202,8 @@ io.on('connection', (socket) => {
     callback({ success, roomNumber: data.roomNumber });
   });
 
-  socket.on(SocketEvent.USER_JOINROOM, (user) => {
-    users.push(user);
+  socket.on(SocketEvent.USER_JOINROOM, (roomNumber) => {
+    socket.join(roomNumber);
   });
 
   socket.on(SocketEvent.USER_GETROOM, (data, callback) => {
@@ -127,5 +216,15 @@ io.on('connection', (socket) => {
     var { sender, roomNumber, message } = data;
     console.log(sender.username + ' sent a chat to room ' + roomNumber + ' saying:\n' + data.message);
     socket.broadcast.to(roomNumber).emit(SocketEvent.SERVER_BROADCASTCHAT, { sender, roomNumber, message });
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log('client disconnected');
+    console.log(reason);
+  });
+
+  socket.on('reconnect', (attemptNumber) => {
+    console.log('client reconnected');
+    console.log(attemptNumber);
   });
 });

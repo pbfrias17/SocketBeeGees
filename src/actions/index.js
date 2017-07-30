@@ -1,6 +1,7 @@
 import * as ActionType from './types';
 
 const UpdateUser = (user) => {
+  console.log('UpdateUser() action received user ' + user);
   return {
     type: ActionType.USER_UPDATE,
     payload: user

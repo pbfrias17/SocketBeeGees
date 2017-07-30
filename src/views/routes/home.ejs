@@ -1,16 +1,14 @@
 <% include partials/header %>
 
 <body>
-  <% include partials/masterNav %>
-  <h3>Welcome to SOCKET BEEGEES!</h3>
   <div id="app"></div>
   <div id="abar">
     <a href="https://github.com/pbfrias17/SocketBeeGees" target="_blank">Check out the code for this app</a>
   </div>
   <script>
-    window.userId = '<%- user._id %>';
+    window.user = '<%- JSON.stringify(user) %>';
   </script>
 </body>
 
-<% include partials/joinImporter %>
+<% include partials/homeImporter %>
 <% include partials/footer %>

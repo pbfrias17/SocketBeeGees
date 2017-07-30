@@ -3,14 +3,13 @@ var webpack = require('webpack');
 var path = require('path');
 
 module.exports = {
-  //context: __dirname, //path.join(__dirname, "src"),
   devtool: debug ? "inline-sourcemap" : null,
   devServer: {
     contentBase: debug ? './dist' : './build'
   },
   entry: {
-    gameRoom: "./src/gameRoom",
-    join: "./src/join",  
+    home: "./src/client_home", 
+    room: "./src/client_room", 
   },
   module: {
     loaders: [

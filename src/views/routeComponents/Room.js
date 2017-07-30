@@ -1,29 +1,38 @@
 import io from 'socket.io-client';
 import React from 'react';
 import { connect } from 'react-redux';
-import * as SocketEvent from '../socket/SocketEvents';
+import * as SocketEvent from '../../socket/SocketEvents';
 import ChatBoxForm from '../components/ChatBoxForm';
-import { SetUserInfo, SetRoomInfo } from '../actions';
+import { UpdateUser, SetRoomInfo } from '../../actions';
 
-class RoomView extends React.Component {
+class Room extends React.Component {
   constructor(props) {
     super(props);
-    this.roomNumber = window.roomNumber;
-    this.userId = window.userId;
+    
+    this.room = JSON.parse(window.room);
+    this.user = window.user ? JSON.parse(window.user) : null;
+
     this.handleChatSend = this.handleChatSend.bind(this);
   };
 
   componentWillMount(props) {
+    this.props.updateUser(this.user);
+    this.props.setRoomInfo(this.room);
     this.socket = io.connect('http://localhost:3000');
-    // this.socket.emit(SocketEvent.USER_GETROOM, { roomNumber: this.roomNumber }, (room) => {
-    //   this.props.SetRoomInfo(room); 
-    // });
+
+    this.socket.emit(SocketEvent.USER_JOINROOM, this.room.roomNumber);
+
     this.socket.on(SocketEvent.SERVER_BROADCASTROOMUPDATE, (room) => {
       console.log('another user joined');
-      this.props.SetRoomInfo(room);
+      console.log(room);
+      this.props.setRoomInfo(room);
     });
     this.socket.on(SocketEvent.SERVER_BROADCASTCHAT, (data) => {
       console.log(data.sender.username + ' said: ' + data.message);
+    });
+    this.socket.on('disconnect', (reason) => {
+      console.log('client disconnected');
+      console.log(reason);
     });
   }
 
@@ -40,11 +49,9 @@ class RoomView extends React.Component {
   render() {
     return (
       <div>
-        {/*YOU ARE: {this.props.user.username} <br/>*/}
-        {/*Users:<br/>
-        <ul>
-          {this.displayUsers()}
-        </ul>*/}
+        <h4>Welcome to room {this.props.room.roomNumber}</h4>
+        <br />
+        <ul>{this.displayUsers()}</ul>
         <ChatBoxForm onSend={(message) => this.handleChatSend(message)} />
       </div>
     );
@@ -58,4 +65,11 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { SetRoomInfo })(RoomView);
+const mapDispatchToProps = (dispatch) => (
+  { 
+    updateUser: (user) => dispatch(UpdateUser(user)),
+    setRoomInfo: (room) => dispatch(SetRoomInfo(room)),
+  }
+);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Room);

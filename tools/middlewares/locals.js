@@ -20,7 +20,7 @@ const verifyRoomAccessForUser = (req, res, next) => {
         } else {
           const userInRoom = room.users.find(function(u) { return u.username === user.username; });
           console.log('found user(' + userInRoom + ') in room ' + room.roomNumber + ' ');
-          accessGranted = userInRoom !== null;
+          accessGranted = userInRoom !== undefined;
         }
 
         res.locals.userVerifiedForRoomAccess = accessGranted;

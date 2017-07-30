@@ -1,0 +1,14 @@
+<% include partials/header %>
+<body>
+  <% if (room) { %>
+    <div id="app">
+    </div>
+    <script>
+      window.room = '<%- JSON.stringify(room) %>';
+      window.user = '<%- JSON.stringify(user) %>';
+    </script>
+    <% include partials/roomImporter %>
+  <% } else { %>
+    <h5>Fatal Room Error</h5>
+  <% } %>
+</body>

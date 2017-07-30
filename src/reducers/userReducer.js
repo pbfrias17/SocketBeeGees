@@ -6,7 +6,7 @@ const initialState = {};
 const userReducer = (state=initialState, action) => {
   switch (action.type) {
     case ActionType.USER_UPDATE:
-      return { ...action.payload };
+      return action.payload;
 
     case ActionType.USER_SETUSERINFO:
       return { ...action.payload };
