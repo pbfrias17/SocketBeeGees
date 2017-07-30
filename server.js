@@ -1,6 +1,6 @@
 import path from 'path';
 import express from 'express';
-import ReactEngine from 'express-react-engine';
+import flash from 'express-flash';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import Enumerable from 'linq';
@@ -17,6 +17,7 @@ import * as SocketEvent from './src/socket/socketEvents';
 const app = express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
+app.use(flash());
 
 // Configure Authentication
 app.use(require('express-session')({
@@ -68,11 +69,9 @@ app.post('/register', (req, res) => {
   const newUser = new User({ username: req.body.username });
   User.register(newUser, req.body.password, (err, user) => {
     if(err) {
-      console.log(err);
-      req.flash('reg_error', err.message);
-      res.redirect('/register');
+      res.redirect('/');
     } else {
-      // if registration successful, login user
+      // if registration successful, login user    
       passport.authenticate('local')(req, res, () => {
         res.redirect('/');
       });

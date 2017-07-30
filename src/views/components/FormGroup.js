@@ -1,15 +1,17 @@
 import React from 'react';
+import axios from 'axios';
 
 class FormGroup extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
-    this.props.forms.forEach((form) => {
+    this.state = { formError: null };
+    this.props.forms.forEach(form => {
       this.state[form.name] = form.type === 'number' ? NaN : '';
     });
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   };
 
   handleInputChange(event) {
@@ -20,6 +22,26 @@ class FormGroup extends React.Component {
       [name]: value
     });
   };
+
+  handleSubmit(event) {
+    var errorCaught = false;
+    this.props.forms.forEach(form => {
+      console.log(form);
+      if (form.required && !errorCaught) {
+        let unacceptableValue = form.type === 'number' ? NaN : ''; 
+        if (this.state[form.name] === unacceptableValue) {
+          this.setState({ formError: 'Missing required information.' })
+          event.preventDefault();
+        }
+      }
+    });
+  }
+
+  renderFormError() {
+    if (this.state.formError) {
+      return <div className='alert alert-danger'>{this.state.formError}</div>;
+    }
+  }
 
   renderForms() {
     return this.props.forms.map((form, i) =>
@@ -40,9 +62,10 @@ class FormGroup extends React.Component {
     return (
       <div>
         <h3>{this.props.groupLabel}</h3>
-        <form action={this.props.formAction} method='post'>
+        <form onSubmit={this.handleSubmit} action={this.props.formAction} method='POST'>
+          {this.renderFormError()}
           {this.renderForms()}
-          <input type="submit" value={this.props.submitText} />
+          <button>{this.props.submitText}</button>
         </form>
       </div>
     );

@@ -10,11 +10,13 @@ class AccountRegisterForm extends React.Component {
         name: 'username',
         placeholder: 'username',
         type: 'text',
+        required: true,
       },
       { 
         name: 'password',
         placeholder: 'password',
         type: 'password',
+        required: true,
       },
       { 
         name: 'confirmPassword',
@@ -28,11 +30,13 @@ class AccountRegisterForm extends React.Component {
     return (
       <div className="panel panel-primary">
           <div className='panel-heading'>Account Registration</div>
-        <FormGroup
-          formAction='/register'
-          groupLabel="Create a new account:"
-          forms={this.accountRegisterForms}
-          submitText="Create Account" />
+          <div className='panel-body'>
+            <FormGroup
+              formAction='/register'
+              groupLabel="Create a new account:"
+              forms={this.accountRegisterForms}
+              submitText="Create Account" />
+          </div>
       </div>
     );
   };
