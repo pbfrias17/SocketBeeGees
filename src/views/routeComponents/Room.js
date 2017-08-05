@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as SocketEvent from '../../socket/SocketEvents';
 import ChatBoxForm from '../components/ChatBoxForm';
+import GameBoard from '../gameComponents/GameBoard';
 import { UpdateUser, SetRoomInfo } from '../../actions';
 
 class Room extends React.Component {
@@ -51,6 +52,7 @@ class Room extends React.Component {
       <div>
         <h4>Welcome to room {this.props.room.roomNumber}</h4>
         <br />
+        <GameBoard />
         <ul>{this.displayUsers()}</ul>
         <ChatBoxForm onSend={(message) => this.handleChatSend(message)} />
       </div>

@@ -18,6 +18,7 @@ const app = express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(flash());
+app.use(express.static('assets'));
 
 // Configure Authentication
 app.use(require('express-session')({

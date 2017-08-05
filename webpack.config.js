@@ -16,7 +16,12 @@ module.exports = {
       { test: /\.js$/, 
         exclude: /(node_modules)/, 
         include: path.join(__dirname, '/'),
-        loaders: ['babel-loader'] }
+        loaders: ['babel-loader'] 
+      },
+      {
+        test: /\.(jpe?g|png|gif|svg)$/i,
+        loader: 'url-loader?limit=30000&name=[name].[ext]'
+      }
     ]
   },
   output: {
